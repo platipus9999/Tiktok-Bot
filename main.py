@@ -128,7 +128,7 @@ class Zefoy:
 
         self.driver.execute_script('window.open("https://zefoy.com");')
         
-        res = None
+        res = ''
 
         while not 'Enter the word' in res:
             with BytesIO() as bytes_array:
