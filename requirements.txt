@@ -1,4 +1,3 @@
-selenium
 easyocr
 undetected-chromedriver
 requests
