@@ -214,14 +214,16 @@ class Zefoy:
         while True:
             source = self.driver.page_source
 
+            if 'Successfully' in source:
+                self.sent += 1
+                self.title(f'Tiktok Zefoy Bot ~ Using Selenium ▏  Sent: {self.sent} ▏  Cooldown: 0')
+                break
+            
             if 'Too many requests' in source:
                 sleep(3)
                 break
             
-            if 'Please wait' in source:
-                self.sent += 1
-                self.title(f'Tiktok Zefoy Bot ~ Using Selenium ▏  Sent: {self.sent} ▏  Cooldown: 0')
-                break
+
 
     def check_submit(self):
         remaining = f'//*[@id="{self.paths[self.choice][1]}"]/span'
