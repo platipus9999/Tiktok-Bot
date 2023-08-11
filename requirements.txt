@@ -1,4 +1,3 @@
-easyocr
 undetected-chromedriver
 requests
 pyenchant
