@@ -1,4 +1,4 @@
 selenium
-webdriver_manager
-selenium
+easyocr
+undetected-chromedriver
 requests
