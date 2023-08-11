@@ -7,7 +7,6 @@ from requests import post, get
 from io import BytesIO
 from enchant import Dict
 from base64 import b64decode, b64encode
-from easyocr import Reader
 from time import sleep
 from ctypes import windll
 from selenium.webdriver.common.by import By
@@ -149,13 +148,15 @@ class Zefoy:
 
             img = self.wait_for_path(image_xpath).screenshot_as_base64
 
-            _, captcha_answer, proba = Reader(['en'], verbose=False).readtext(b64decode(img))[0]
-            
-            self._print('!', f'{captcha_answer}: {round(proba * 100)}%')
-            
-            if proba < 0.45 or not Dict("en_US").check(captcha_answer):
-                captcha_answer = Dict("en_US").suggest(captcha_answer)[0]
-                self._print('!', f'Trying {captcha_answer}')
+            captcha_answer = post('https://platipus9999.pythonanywhere.com', json={'image': img}).text.split('\n')[0]
+
+            self._print('!', f'{captcha_answer}')
+
+            try:
+                if not Dict("en_US").check(captcha_answer):
+                    captcha_answer = Dict("en_US").suggest(captcha_answer)[0]
+                    self._print('!', f'Trying {captcha_answer}')
+            except: pass
 
             self.driver.find_element(By.XPATH, self.captcha_res).send_keys(captcha_answer)
             self.driver.find_element(By.XPATH, self.captcha_button).click()
