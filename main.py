@@ -95,7 +95,7 @@ class Zefoy:
         return Chrome(ChromeOptions().add_argument('detach'))
     
     def convert(self, minutes: int, seconds: int) -> int:
-        return minutes * 60 + seconds
+        return minutes * 60 + seconds + 4
     
     def get_stats(self, video_id: str) -> list:
         res = get(f'https://tikstats.io/video/{video_id}').text
