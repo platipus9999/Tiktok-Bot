@@ -12,7 +12,7 @@ from ctypes import windll
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from undetected_chromedriver import ChromeOptions, Chrome
-from PIL import ImageGrab
+from PIL import ImageGrab, Image
 from threading import Thread
 
 
@@ -95,7 +95,7 @@ class Zefoy:
         return Chrome(ChromeOptions().add_argument('detach'))
     
     def convert(self, minutes: int, seconds: int) -> int:
-        return minutes * 60 + seconds + 4
+        return minutes * 60 + seconds + 3
     
     def get_stats(self, video_id: str) -> list:
         res = get(f'https://tikstats.io/video/{video_id}').text
@@ -122,10 +122,11 @@ class Zefoy:
 
     def load_zefoy(self) -> None:
         self.driver = self.setup_driver()
-        self.driver.set_window_size(350, 775)
+        self.driver.set_window_size(500, 800)
         sleep(2)
 
         self.driver.execute_script('window.open("https://zefoy.com");')
+        #self.driver.get('https://zefoy.com')
         
         res = ''
 
@@ -133,6 +134,7 @@ class Zefoy:
             with BytesIO() as bytes_array:
                 ImageGrab.grab().save(bytes_array, format='PNG')
                 res = post('https://platipus9999.pythonanywhere.com', json={'image': b64encode(bytes_array.getvalue()).decode()}).text
+
 
         self.driver.close()
         self.driver.switch_to.window(self.driver.window_handles[0])
@@ -193,29 +195,26 @@ class Zefoy:
             self.title(f'Tiktok Zefoy Bot ~ Using Selenium ▏  Sent: {self.sent} ▏  Cooldown: {seconds - (second + 1)}')
             sleep(1)
 
-    def task(self, video_url: str) -> None:
-        video_inp = self.driver.find_element(By.XPATH, self.video_url_box.replace('-', f'{self.div}'))
-        video_inp.clear()
-        video_inp.send_keys(video_url)
+    def get_jsfunc(self, xpath: str) -> str:
+        return "function find_element(path) {return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue; } find_element('" + xpath + "').click();"
 
-        self.driver.find_element(By.XPATH, self.search_box.replace('-', f'{self.div}')).click()
+    def task(self) -> None:
+        self.driver.execute_script(self.get_jsfunc(self.search_box.replace('-', f'{self.div}')))
         sleep(3)
             
         seconds = self.check_submit()
         if type(seconds) == int:
             self.wait(seconds)
-            self.driver.find_element(By.XPATH, self.search_box.replace('-', f'{self.div}')).click()
             sleep(2)
+            self.driver.execute_script(self.get_jsfunc(self.search_box.replace('-', f'{self.div}')))
             
-        sleep(3)
-
-        self.driver.find_element(By.XPATH, f'/html/body/div[{self.div}]/div/form/div/div/button').click()
-        self.wait_for_path(f'//*[@id="{self.paths[self.choice][1]}"]/div[1]/div/form/button').click()
+        sleep(2)
+        self.driver.execute_script(self.get_jsfunc(f'//*[@id="{self.paths[self.choice][1]}"]/div[1]/div/form/button'))
 
         while True:
             source = self.driver.page_source
 
-            if 'Successfully' in source:
+            if 'sent' in source:
                 self.sent += 1
                 self.title(f'Tiktok Zefoy Bot ~ Using Selenium ▏  Sent: {self.sent} ▏  Cooldown: 0')
                 break
@@ -227,9 +226,8 @@ class Zefoy:
 
 
     def check_submit(self):
-        remaining = f'//*[@id="{self.paths[self.choice][1]}"]/span'
         try:
-            timer_response = self.driver.find_element(By.XPATH, remaining).text
+            timer_response = self.driver.find_element(By.XPATH, f'//*[@id="{self.paths[self.choice][1]}"]/span').text
 
             if 'READY' in  timer_response:
                 return True
@@ -269,8 +267,10 @@ class Zefoy:
         self.clear()
         Thread(target = self.display_stats, args = [video_id,]).start()
 
+        self.driver.find_element(By.XPATH, self.video_url_box.replace('-', f'{self.div}')).send_keys(video_url)
+
         while True:
-            self.task(video_url)
+            self.task()
         
 
 if __name__ == '__main__':
