@@ -14,7 +14,10 @@ from selenium.webdriver.remote.webelement import WebElement
 from undetected_chromedriver import ChromeOptions, Chrome
 from PIL import ImageGrab, Image
 from threading import Thread
-
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+import urllib.request
+import undetected_chromedriver as webdriver
 
 
 class Zefoy:
@@ -92,7 +95,14 @@ class Zefoy:
         return display_banner + f'\n        {second_color}Plati ~ discord.gg/onplx\n'
 
     def setup_driver(self) -> Chrome:
-        return Chrome(ChromeOptions().add_argument('detach'))
+        try:
+                    service = Service(ChromeDriverManager().install())
+        except ValueError:
+                    latest_chromedriver_version_url = "https://chromedriver.storage.googleapis.com/LATEST_RELEASE"
+                    latest_chromedriver_version = urllib.request.urlopen(latest_chromedriver_version_url).read().decode('utf-8')
+                    service = Service(ChromeDriverManager(version=latest_chromedriver_version).install())
+        driver_executable_path = service.path
+        return Chrome(options=ChromeOptions().add_argument('detach'), driver_executable_path=driver_executable_path)
     
     def convert(self, minutes: int, seconds: int) -> int:
         return minutes * 60 + seconds + 3
