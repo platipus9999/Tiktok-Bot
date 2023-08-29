@@ -1,9 +1,7 @@
 from os import system, name as os_name, get_terminal_size
-
-system('title Tiktok Zefoy Bot ~ Using Selenium ▏  Status: Loading [Heavy Package]' if os_name == 'nt' else '')
-
 from re import findall
 from requests import post, get
+from random import choice
 from io import BytesIO
 from enchant import Dict
 from base64 import b64decode, b64encode
@@ -43,6 +41,9 @@ class Zefoy:
  ███╔╝  ██╔══╝  ██╔══╝  ██║   ██║  ╚██╔╝  
 ███████╗███████╗██║     ╚██████╔╝   ██║   
 ╚══════╝╚══════╝╚═╝      ╚═════╝    ╚═╝   
+
+Plati ~ discord.gg/DaEBWuYUUJ
+
 """   
 
     def clear(self) -> int:
@@ -78,21 +79,26 @@ class Zefoy:
         
         first_color, second_color = '\033[38;2;170;180;255m', '\033[38;2;255;255;255m'
 
+        banner = ""
         display_banner = ""
-        for caracter in self.banner:
+
+        for line in self.banner.splitlines():
+            display_banner += " " * (int((get_terminal_size().columns - len(line)) / 2)) + line + "\n"
+
+        for caracter in display_banner:
             if caracter in ['╚', '═', '╝', '╔', '║', '╗']:
-                display_banner += second_color + caracter
+                banner += second_color + caracter
             
             elif caracter in ' ':
-                display_banner += caracter
+                banner += caracter
             
             else:
-                display_banner += first_color + caracter
+                banner += first_color + caracter
 
-        return display_banner + f'\n        {second_color}Plati ~ discord.gg/onplx\n'
+        return banner
 
     def setup_driver(self) -> Chrome:
-        return Chrome(ChromeOptions().add_argument('detach'))
+        return Chrome()
     
     def convert(self, minutes: int, seconds: int) -> int:
         return minutes * 60 + seconds + 3
@@ -122,7 +128,7 @@ class Zefoy:
 
     def load_zefoy(self) -> None:
         self.driver = self.setup_driver()
-        self.driver.set_window_size(500, 800)
+        self.driver.set_window_size(600, 900)
         sleep(2)
 
         self.driver.execute_script('window.open("https://zefoy.com");')
@@ -195,21 +201,27 @@ class Zefoy:
             self.title(f'Tiktok Zefoy Bot ~ Using Selenium ▏  Sent: {self.sent} ▏  Cooldown: {seconds - (second + 1)}')
             sleep(1)
 
-    def get_jsfunc(self, xpath: str) -> str:
-        return "function find_element(path) {return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue; } find_element('" + xpath + "').click();"
-
     def task(self) -> None:
-        self.driver.execute_script(self.get_jsfunc(self.search_box.replace('-', f'{self.div}')))
+        self.driver.find_element(By.XPATH, self.search_box.replace('-', f'{self.div}')).click()
         sleep(3)
             
         seconds = self.check_submit()
         if type(seconds) == int:
             self.wait(seconds)
             sleep(2)
-            self.driver.execute_script(self.get_jsfunc(self.search_box.replace('-', f'{self.div}')))
+            self.driver.find_element(By.XPATH, self.search_box.replace('-', f'{self.div}'))
             
         sleep(2)
-        self.driver.execute_script(self.get_jsfunc(f'//*[@id="{self.paths[self.choice][1]}"]/div[1]/div/form/button'))
+
+        while True:
+            try:
+                self.driver.execute_script("function find_element(path) {return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue; } find_element('" + f'//*[@id="{self.paths[self.choice][1]}"]/div[1]/div/form/button' + "').click();")
+                break
+            except:
+                self.driver.find_element(By.XPATH, self.search_box.replace('-', f'{self.div}')).click()
+
+            sleep(2)
+
 
         while True:
             source = self.driver.page_source
