@@ -13,8 +13,6 @@ from undetected_chromedriver import ChromeOptions, Chrome
 from PIL import ImageGrab, Image
 from threading import Thread
 
-
-
 class Zefoy:
     def __init__(self) -> None:
         self.captcha_box = '/html/body/div[5]/div[2]/form/div/div'
@@ -22,6 +20,8 @@ class Zefoy:
         self.captcha_button = '/html/body/div[5]/div[2]/form/div/div/div/div/button'
         self.video_url_box = '/html/body/div[-]/div/form/div/input'
         self.search_box    = '/html/body/div[-]/div/form/div/div/button'
+        '/html/body/div[11]/div/form/div/div/button'
+        '//*[@id="c2VuZC9mb2xsb3dlcnNfdGlrdG9s"]/div[1]/div/form/button'
         self.sent = 0
 
         self.paths = {
@@ -98,7 +98,7 @@ Plati ~ discord.gg/DaEBWuYUUJ
         return banner
 
     def setup_driver(self) -> Chrome:
-        return Chrome()
+        return Chrome(ChromeOptions().add_argument('--lang=es'))
     
     def convert(self, minutes: int, seconds: int) -> int:
         return minutes * 60 + seconds + 3
@@ -145,7 +145,7 @@ Plati ~ discord.gg/DaEBWuYUUJ
         self.driver.close()
         self.driver.switch_to.window(self.driver.window_handles[0])
     
-    def solve(self) -> None:
+    def solve(self, resolve: bool = False) -> None:
         image_xpath = self.captcha_box + '/img'
 
         failed = False
@@ -158,12 +158,12 @@ Plati ~ discord.gg/DaEBWuYUUJ
 
             captcha_answer = post('https://platipus9999.pythonanywhere.com', json={'image': img}).text.split('\n')[0]
 
-            self._print('!', f'{captcha_answer}')
+            self._print('!', f'{captcha_answer}') if resolve else ''
 
             try:
                 if not Dict("en_US").check(captcha_answer):
                     captcha_answer = Dict("en_US").suggest(captcha_answer)[0]
-                    self._print('!', f'Trying {captcha_answer}')
+                    self._print('!', f'Trying {captcha_answer}') if resolve else ''
             except: pass
 
             self.driver.find_element(By.XPATH, self.captcha_res).send_keys(captcha_answer)
@@ -220,6 +220,17 @@ Plati ~ discord.gg/DaEBWuYUUJ
             except:
                 self.driver.find_element(By.XPATH, self.search_box.replace('-', f'{self.div}')).click()
 
+                if 'Session expired' in self.driver.page_source:
+                    sleep(2)
+                    self.driver.find_element(By.XPATH, f'//*[@id="{self.paths[self.choice][1]}"]/div/span/a').click()
+
+                    self.solve(True)
+
+                    sleep(1)
+                    self.driver.find_element(By.XPATH, self.paths[self.choice][0]).click()
+
+                    self.driver.find_element(By.XPATH, self.video_url_box.replace('-', f'{self.div}')).send_keys(self.video_url)
+
             sleep(2)
 
 
@@ -230,11 +241,10 @@ Plati ~ discord.gg/DaEBWuYUUJ
                 self.sent += 1
                 self.title(f'Tiktok Zefoy Bot ~ Using Selenium ▏  Sent: {self.sent} ▏  Cooldown: 0')
                 break
-            
-            if 'Too many requests' in source:
+
+            elif 'Too many requests' in source:
                 sleep(3)
                 break
-            
 
 
     def check_submit(self):
@@ -256,8 +266,8 @@ Plati ~ discord.gg/DaEBWuYUUJ
         print(self.display_banner())
         self.title('Tiktok Zefoy Bot ~ Using Selenium ▏  Status: Loading')
 
-        video_url = input(self._print('?', 'Video Url > ', input=True))
-        video_id = self.get_id(video_url)
+        self.video_url = input(self._print('?', 'Video Url > ', input=True))
+        video_id = self.get_id(self.video_url)
 
         self._print('!', 'Browser is loading\n')
         self.load_zefoy()
@@ -279,7 +289,7 @@ Plati ~ discord.gg/DaEBWuYUUJ
         self.clear()
         Thread(target = self.display_stats, args = [video_id,]).start()
 
-        self.driver.find_element(By.XPATH, self.video_url_box.replace('-', f'{self.div}')).send_keys(video_url)
+        self.driver.find_element(By.XPATH, self.video_url_box.replace('-', f'{self.div}')).send_keys(self.video_url)
 
         while True:
             self.task()
