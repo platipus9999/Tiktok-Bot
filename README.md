@@ -10,4 +10,4 @@ Update of zefoy selenium version
 6. Run the `main.py`
 7. Don't touch the browser until zefoy load otherwise cloudflare won't be bypassed
 8. If you can't run the .py version, run the .exe version <a href="https://mega.nz/file/Kx5hFJbQ#hUDdEZI1-M6WfesjI0KSJ3UOEc8Z0F-nO_7iQxQaR1E">**link**</a> (compiled with pyinstaller so it's easy to reverse, so people don't have to worry.)
---------------------------------------
+---------------------------------------
